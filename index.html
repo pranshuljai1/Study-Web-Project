@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Assistant</title>
+</head>
+<body>
+    <h1>Ask a Question</h1>
+    <form id="questionForm">
+        <input type="text" id="questionInput" placeholder="Type your question here">
+        <button type="submit">Get Answer</button>
+    </form>
+
+    <h2>Upload an Image (OCR)</h2>
+    <form id="ocrForm" enctype="multipart/form-data">
+        <input type="file" id="imageInput">
+        <button type="submit">Extract Text</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        const backendUrl = "https://your-app-name.up.railway.app";
+
+        document.getElementById("questionForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const question = document.getElementById("questionInput").value;
+            const response = await fetch(`${backendUrl}/answer`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question }),
+            });
+            const result = await response.json();
+            document.getElementById("response").innerText = result.answer;
+        });
+
+        document.getElementById("ocrForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const fileInput = document.getElementById("imageInput");
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            const response = await fetch(`${backendUrl}/ocr`, {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json();
+            document.getElementById("response").innerText = result.text || result.error;
+        });
+    </script>
+</body>
+</html>
